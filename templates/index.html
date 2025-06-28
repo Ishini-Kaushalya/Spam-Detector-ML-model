@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spam Detector</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Email Spam Detector</h1>
+        <form id="spamForm">
+            <textarea name="email" placeholder="Paste email text here..." required></textarea>
+            <button type="submit">Check for Spam</button>
+        </form>
+        <div id="result"></div>
+    </div>
+    <script>
+        document.getElementById('spamForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch('/predict', {
+                method: 'POST',
+                body: new FormData(this)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                if (data.is_spam) {
+                    resultDiv.innerHTML = `
+                        <div class="spam">
+                            <h2>⚠️ SPAM ALERT ⚠️</h2>
+                            <p>Probability: ${(data.probability * 100).toFixed(2)}%</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="ham">
+                            <h2>✅ Legitimate Email</h2>
+                            <p>Spam probability: ${(data.probability * 100).toFixed(2)}%</p>
+                        </div>
+                    `;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
